@@ -1,42 +1,18 @@
 #include <IRremote.h> 
-
 #include <SPI.h> 
-
 #include <Wire.h> 
-
 #include <Adafruit_GFX.h> 
-
 #include <Adafruit_SSD1306.h> 
-
 #include <dht.h> 
 
 
-
-#define OLED_MOSI  3
-
-#define OLED_CLK   4
-
-#define OLED_DC    5
-
-#define OLED_CS    6
-
-#define OLED_RESET 7
-
-Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
-
-
 #define SSD1306_LCDHEIGHT 64 
-
-
 #define DHT11_PIN 13 
 
-dht DHT; //Sensor object named as DHT
+dht DHT; 
 
+#define Desired_temperature 27 
 
-#define Desired_temperature 27 //The desired temperature is 27*C at any time
-
-
-//Decoded Remote Signals For my AC ##CHANGE IT FOR YOUR REMOTE
 
 unsigned int ACoff[] = {2950,1750, 400,1100, 450,1050, 450,400, 400,400, 400,400, 450,1100, 400,400, 400,400, 450,1100, 400,1100, 450,350, 450,1100, 400,400, 400,400, 450,1100, 400,1100, 450,400, 400,1100, 400,1100, 450,400, 400,400, 400,1100, 450,350, 450,400, 400,1100, 450,400, 400,400, 400,400, 450,350, 450,350, 450,400, 400,400, 450,350, 450,400, 400,400, 400,400, 450,350, 450,400, 400,400, 400,400, 450,400, 400,400, 400,400, 450,350, 450,350, 450,1100, 400,400, 450,400, 400,1100, 450,1050, 450,400, 400,400, 400,400, 450,350, 450,400, 400,400, 450,350, 450,400, 400,400, 400,1100, 450,350, 450,400, 400,400, 400,400, 450,400, 400,1100, 450,350, 450,400, 400,400, 400,400, 400,1100, 450,400, 400,400, 450,350, 450,400, 400,400, 400,400, 450,350, 450,350, 450,400, 400,400, 450,350, 450,400, 400,400, 400,400, 450,350, 450,400, 400,400, 450,350, 450,400, 400,400, 400,400, 450,350, 450,350, 450,400, 450,350, 450,350, 450,400, 450,350, 450,350, 450,350, 450,400, 450,350, 450,350, 450,400, 400,1100, 450,350, 450,350, 450,400, 450,350, 450,350, 450,1100, 450};  
 
@@ -58,11 +34,8 @@ unsigned int Temp29[] = {3100,1550, 600,950, 500,1000, 550,300, 500,300, 500,300
 
 unsigned int Temp30[] = {3000,1650, 500,1000, 550,1000, 500,300, 500,300, 550,250, 550,1000, 500,300, 500,300, 550,1000, 550,950, 550,250, 550,1000, 550,250, 550,250, 550,1000, 550,950, 550,300, 500,1000, 550,950, 550,300, 500,300, 550,950, 550,300, 550,250, 550,1000, 500,300, 500,300, 550,250, 550,250, 550,300, 500,300, 550,250, 550,300, 500,300, 500,300, 550,250, 550,300, 500,300, 500,300, 550,300, 500,300, 500,300, 550,950, 550,300, 500,300, 500,1000, 550,250, 550,300, 550,950, 550,1000, 500,300, 550,250, 550,250, 600,250, 500,300, 550,250, 550,1000, 500,300, 550,250, 550,300, 500,300, 500,300, 550,250, 550,300, 500,300, 550,950, 550,300, 500,1000, 550,950, 550,1000, 500,300, 550,300, 500,300, 500,300, 550,250, 550,300, 500,300, 500,300, 550,250, 550,300, 500,300, 500,300, 550,250, 550,300, 500,300, 500,300, 550,250, 550,300, 500,300, 550,250, 550,300, 500,300, 500,300, 550,250, 550,250, 550,300, 500,300, 550,250, 550,300, 500,300, 500,300, 550,250, 550,300, 500,300, 550,950, 500,1050, 500,1000, 500,350, 500,1000, 500,1000, 500,1050, 500,300, 500};  
 
-//Change it for your remote
-
 
 IRsend irsend;
-
 
 int Measured_temp;
 
@@ -77,162 +50,128 @@ int Pev_value;
 boolean AC = false;
 
 
-int khz = 38; // 38kHz carrier frequency for the NEC protocol
+int khz = 38; 
 
 
 void setup()
 
-{
-
-Serial.begin(9600);
-
-display.begin(SSD1306_SWITCHCAPVCC);
-
-display.clearDisplay();
-
-}
-
 
 void loop() {
 
-  
 
-  DHT.read11(DHT11_PIN); //Read the Temp and Humidity
+  DHT.read11(DHT11_PIN); 
 
   Measured_temp = DHT.temperature + temp_error;
 
   Measured_Humi = DHT.humidity;
 
 
-// text display tests
-
-  display.setTextSize(1);
-
-  display.setTextColor(WHITE);
-
-  display.setCursor(0,0);
-
-  display.print("Temperature: "); display.print(Measured_temp);display.println("C");
-
-  display.setCursor(0,10);
-
-  display.print("Humidity: "); display.print(Measured_Humi);display.println("%");
-
-  display.setCursor(0,20);
-
-  display.print("AC Temp: "); display.print(AC_Temp);display.println("C");
-
-
-  display.display();
-
-  delay(500);
-
-  display.clearDisplay();
-
- 
-
- if ((Measured_temp <= (Desired_temperature-3)) && AC == true) //If AC is turned on and temperature is less than 3 degree of Desired value #24 turn off
+ if ((Measured_temp <= (Desired_temperature-3)) && AC == true) 
 
  {
 
-  irsend.sendRaw(ACoff, sizeof(ACoff) / sizeof(ACoff[0]), khz);  delay(2000);//Send signal to Turn Off the AC
+  irsend.sendRaw(ACoff, sizeof(ACoff) / sizeof(ACoff[0]), khz);  delay(2000);
 
-  AC_Temp = 0; AC=false;
+  AC_Temp = 0; 
+  
+  AC=false;
 
  }
 
 
- if ((Measured_temp >= Desired_temperature+4) && AC == false) //If AC is off and measured Temp is greater than Desired Temp
+ if ((Measured_temp >= Desired_temperature+4) && AC == false)
 
  {
 
-  irsend.sendRaw(ACon, sizeof(ACon) / sizeof(ACon[0]), khz); delay(2000); //Send Signal to Turn On the AC 
+  irsend.sendRaw(ACon, sizeof(ACon) / sizeof(ACon[0]), khz); delay(2000);
 
   delay(2000);
 
-  irsend.sendRaw(Temp27, sizeof(Temp27) / sizeof(Temp27[0]), khz); //Send signal to set 27*C
+  irsend.sendRaw(Temp27, sizeof(Temp27) / sizeof(Temp27[0]), khz); 
 
-  AC_Temp = 27; AC=true;
+  AC_Temp = 27;
+
+  AC=true;
 
  }
 
 
-if ( Measured_temp != Pev_value) //Change the temperature only if the measured voltage value changes
+if ( Measured_temp != Pev_value) 
 
 {
 
 
-if (Measured_temp == Desired_temperature+3) //If AC is ON and measured temp is very very high than desired
+if (Measured_temp == Desired_temperature+3)
 
 {
 
-   irsend.sendRaw(Temp24, sizeof(Temp24) / sizeof(Temp24[0]), khz); delay(2000);//Send signal to set 24*C
+   irsend.sendRaw(Temp24, sizeof(Temp24) / sizeof(Temp24[0]), khz); delay(2000);
 
   AC_Temp = 24; 
 
 }
 
 
-if (Measured_temp == Desired_temperature+2) //If AC is ON and measured temp is very high than desired
+if (Measured_temp == Desired_temperature+2) 
 
 {
 
-   irsend.sendRaw(Temp25, sizeof(Temp25) / sizeof(Temp25[0]), khz); delay(2000);//Send signal to set 25*C
+   irsend.sendRaw(Temp25, sizeof(Temp25) / sizeof(Temp25[0]), khz); delay(2000);
 
   AC_Temp = 25; 
 
 }
 
 
-if (Measured_temp == Desired_temperature+1) //If AC is ON and measured temp is very high than desired
+if (Measured_temp == Desired_temperature+1) 
 
 {
 
-   irsend.sendRaw(Temp26, sizeof(Temp26) / sizeof(Temp26[0]), khz); delay(2000);//Send signal to set 26*C
+   irsend.sendRaw(Temp26, sizeof(Temp26) / sizeof(Temp26[0]), khz); delay(2000);
 
   AC_Temp = 26; 
 
 }
 
 
-if (Measured_temp == 27 ) //If AC is ON and measured temp is desired value
+if (Measured_temp == 27 ) 
 
 {
 
-  irsend.sendRaw(Temp27, sizeof(Temp27) / sizeof(Temp27[0]), khz); //Send signal to set 27*C
+  irsend.sendRaw(Temp27, sizeof(Temp27) / sizeof(Temp27[0]), khz);
 
   AC_Temp = 27; 
 
 }
 
 
-if (Measured_temp == Desired_temperature-1) //If AC is ON and measured temp is low than desired value
+if (Measured_temp == Desired_temperature-1) 
 
 {
 
-  irsend.sendRaw(Temp28, sizeof(Temp28) / sizeof(Temp28[0]), khz); delay(2000);//Send signal to set 28*C
+  irsend.sendRaw(Temp28, sizeof(Temp28) / sizeof(Temp28[0]), khz); delay(2000);
 
   AC_Temp = 28; 
 
 }
 
 
-if (Measured_temp == Desired_temperature-2 ) //If AC is ON and measured temp is very low than desired value
+if (Measured_temp == Desired_temperature-2 ) 
 
 {
 
-  irsend.sendRaw(Temp29, sizeof(Temp29) / sizeof(Temp29[0]), khz); delay(2000);//Send signal to set 29*C
+  irsend.sendRaw(Temp29, sizeof(Temp29) / sizeof(Temp29[0]), khz); delay(2000);
 
   AC_Temp = 29; 
 
 }
 
 
-if (Measured_temp == Desired_temperature-3 ) //If AC is ON and measured temp is very very low desired value
+if (Measured_temp == Desired_temperature-3 ) 
 
 {
 
-  irsend.sendRaw(Temp30, sizeof(Temp30) / sizeof(Temp30[0]), khz); delay(2000);//Send signal to set 30*C
+  irsend.sendRaw(Temp30, sizeof(Temp30) / sizeof(Temp30[0]), khz); delay(2000);
 
   AC_Temp = 30; 
 
